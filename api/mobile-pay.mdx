@@ -1,0 +1,318 @@
+---
+title: "API Mobile Pay"
+description: "Déclenche un paiement Mobile Money via l'API REST. +14 pays, Orange, MTN, Wave et plus."
+---
+
+L'endpoint Mobile Pay initie une transaction Mobile Money. L'utilisateur reçoit une notification USSD sur son téléphone pour confirmer le paiement.
+
+<Tip>
+  L'API est disponible dans **plus de 14 pays** : `Bénin`, `Burkina Faso`,
+  `Cameroun`, `Congo (Brazzaville)`, `Congo (Kinshasa)`, `Côte d'Ivoire`,
+  `Gabon`, `Ghana`, `Kenya`, `Rwanda`, `Sénégal`, `Sierra Leone`, `Tanzanie`,
+  `Ouganda`, `Zambie`.
+</Tip>
+
+## Endpoint
+
+```
+POST https://www.dklo.co/api/tara/mobilepay
+```
+
+| Header          | Valeur                 |
+| --------------- | ---------------------- |
+| `Authorization` | `Bearer ta_clé_privée` |
+| `Content-Type`  | `application/json`     |
+
+---
+
+## Étape 1 — Lancer un paiement
+
+Pour lancer un paiement, envoyez une requête `POST` avec la charge utile JSON suivante :
+
+### Corps de la requête
+
+```json
+{
+  "apiKey": "ta_clé_publique",
+  "businessId": "ton_business_id",
+  "productId": "product-456",
+  "productName": "Nom du produit",
+  "network": "",
+  "productPrice": 100,
+  "phoneNumber": "2376xxxxxxxx",
+  "webHookUrl": "https://example.com/webhook"
+}
+```
+
+### Paramètres
+
+| Paramètre      | Type     | Obligatoire | Description                                                                                         |
+| -------------- | -------- | ----------- | --------------------------------------------------------------------------------------------------- |
+| `apiKey`       | `string` | Oui         | Votre clé API publique fournie par Tara                                                             |
+| `businessId`   | `string` | Oui         | Votre identifiant d'entreprise unique chez Tara                                                     |
+| `productId`    | `string` | Oui         | Un identifiant unique pour le produit ou le service acheté                                          |
+| `productName`  | `string` | Oui         | Le nom du produit ou du service                                                                     |
+| `productPrice` | `number` | Oui         | Le prix en FCFA (entier)                                                                            |
+| `phoneNumber`  | `string` | Oui         | Le numéro de téléphone qui effectue le paiement (ex: 2376xxxxxxxx)                                  |
+| `network`      | `string` | Non         | Code réseau. Définir sur `"wave"` pour les paiements Wave au Sénégal, Burkina Faso et Côte d'Ivoire |
+| `webHookUrl`   | `string` | Oui         | L'URL où Tara enverra une requête POST pour notifier du statut du paiement                          |
+
+<Card
+  title="NOTE IMPORTANTE SUR `phoneNumber`"
+  icon="message-square-warning"
+  color="#FF4400"
+>
+  Pour le traitement des transactions, il est **ABSOLUMENT OBLIGATOIRE** d'inclure l'indicatif téléphonique du pays (code ISO) au début du numéro.
+
+**Exemple :** Pour un numéro du Cameroun, le format doit être `2376xxxxxxxx`, et non `6xxxxxxxx`.
+
+</Card>
+
+### Exemple cURL
+
+```bash
+curl -X POST https://www.dklo.co/api/tara/mobilepay \
+  -H "Authorization: Bearer ta_clé_privée" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "apiKey": "ta_clé_publique",
+    "businessId": "ton_business_id",
+    "productId": "product-456",
+    "productName": "Collecte scolaire 2026",
+    "network": "",
+    "productPrice": 100,
+    "phoneNumber": "2376xxxxxxxx",
+    "webHookUrl": "https://tonsite.com/webhook"
+  }'
+```
+
+---
+
+## Étape 2 — Réponse de l'API
+
+Après un lancement réussi, l'API répond avec un objet JSON :
+
+```json
+{
+  "message": "API_ORDER_SUCESSFULL",
+  "status": "SUCCESS",
+  "vendor": "ORANGE_CAMEROON"
+}
+```
+
+### Champs de la réponse
+
+| Champ     | Type     | Description                                                                   |
+| --------- | -------- | ----------------------------------------------------------------------------- |
+| `message` | `string` | Message de statut (ex: `"API_ORDER_SUCESSFULL"`)                              |
+| `status`  | `string` | Statut du lancement (`SUCCESS` / `FAILURE`)                                   |
+| `vendor`  | `string` | Opérateur Mobile Money (`ORANGE_CAMEROON` / `MTN_CAMEROON` / `WAVE_SEN` etc.) |
+
+### Paiements Wave
+
+Pour les paiements Wave (Sénégal, Burkina Faso, Côte d'Ivoire), la réponse inclut un champ supplémentaire :
+
+```json
+{
+  "message": "API_ORDER_SUCESSFULL",
+  "status": "SUCCESS",
+  "vendor": "WAVE_SEN",
+  "authUrl": "https://wave.com/..."
+}
+```
+
+Redirigez l'utilisateur vers l'`authUrl` fournie pour finaliser le paiement.
+
+---
+
+## Étape 3 — Notification Webhook
+
+Une fois que l'utilisateur a finalisé le processus de paiement, Tara envoie une requête `POST` à l'URL `webHookUrl` que vous avez fournie.
+
+### Charge utile du webhook
+
+```json
+{
+  "businessId": "ton_business_id",
+  "paymentId": "awerSxlerxrfrt-6",
+  "collectionId": "456641929164",
+  "phoneNumber": "696717597",
+  "creationDate": "2025-07-24T15:28:53.678+02:00",
+  "changeDate": "2025-07-24T15:28:53.678+02:00",
+  "status": "SUCCESS"
+}
+```
+
+### Champs du webhook
+
+| Champ          | Type     | Description                                                |
+| -------------- | -------- | ---------------------------------------------------------- |
+| `businessId`   | `string` | Votre ID d'entreprise dans Tara                            |
+| `paymentId`    | `string` | L'identifiant unique de cette transaction                  |
+| `collectionId` | `string` | L'identifiant de la collecte liée à ce paiement            |
+| `phoneNumber`  | `string` | Le numéro de téléphone utilisé pour la transaction         |
+| `creationDate` | `string` | Horodatage de création de la demande (ISO 8601)            |
+| `changeDate`   | `string` | Horodatage de la dernière mise à jour du statut (ISO 8601) |
+| `status`       | `string` | Statut final du paiement : `SUCCESS` / `FAILURE`           |
+
+<Card title="Important" icon="shield-check">
+  Assurez-vous que votre `webHookUrl` est sécurisée avec **HTTPS**. Tara ne
+  relance pas automatiquement les livraisons de webhook qui ont échoué, mais
+  vous pouvez les relancer manuellement depuis le tableau de bord.
+</Card>
+
+---
+
+## Opérateurs pris en charge
+
+### Cameroun
+
+| MMO    | Provider       | Devise | Auth            |
+| ------ | -------------- | ------ | --------------- |
+| MTN    | `MTN_MOMO_CMR` | XAF    | `PROVIDER_AUTH` |
+| Orange | `ORANGE_CMR`   | XAF    | `PROVIDER_AUTH` |
+
+### Bénin
+
+| MMO  | Provider       | Devise | Auth            |
+| ---- | -------------- | ------ | --------------- |
+| MTN  | `MTN_MOMO_BEN` | XOF    | `PROVIDER_AUTH` |
+| Moov | `MOOV_BEN`     | XOF    | `PROVIDER_AUTH` |
+
+### Burkina Faso
+
+| MMO    | Provider     | Devise | Auth            |
+| ------ | ------------ | ------ | --------------- |
+| Moov   | `MOOV_BFA`   | XOF    | `PROVIDER_AUTH` |
+| Orange | `ORANGE_BFA` | XOF    | `PREAUTH`       |
+
+### Côte d'Ivoire
+
+| MMO    | Provider       | Devise | Auth            |
+| ------ | -------------- | ------ | --------------- |
+| MTN    | `MTN_MOMO_CIV` | XOF    | `PROVIDER_AUTH` |
+| Orange | `ORANGE_CIV`   | XOF    | `PROVIDER_AUTH` |
+| Wave   | `WAVE_CIV`     | XOF    | `REDIRECT_AUTH` |
+
+### Congo (Brazzaville)
+
+| MMO    | Provider       | Devise | Auth            |
+| ------ | -------------- | ------ | --------------- |
+| Airtel | `AIRTEL_COG`   | XAF    | `PROVIDER_AUTH` |
+| MTN    | `MTN_MOMO_COG` | XAF    | `PROVIDER_AUTH` |
+
+### Congo (Kinshasa)
+
+| MMO     | Provider            | Devise | Auth            |
+| ------- | ------------------- | ------ | --------------- |
+| Vodacom | `VODACOM_MPESA_COD` | CDF    | `PROVIDER_AUTH` |
+| Airtel  | `AIRTEL_COD`        | CDF    | `PROVIDER_AUTH` |
+| Orange  | `ORANGE_COD`        | CDF    | `PROVIDER_AUTH` |
+
+### Gabon
+
+| MMO    | Provider     | Devise | Auth            |
+| ------ | ------------ | ------ | --------------- |
+| Airtel | `AIRTEL_GAB` | XAF    | `PROVIDER_AUTH` |
+
+### Ghana
+
+| MMO        | Provider         | Devise | Auth            |
+| ---------- | ---------------- | ------ | --------------- |
+| MTN        | `MTN_MOMO_GHA`   | GHS    | `PROVIDER_AUTH` |
+| AirtelTigo | `AIRTELTIGO_GHA` | GHS    | `PROVIDER_AUTH` |
+| Vodafone   | `VODAFONE_GHA`   | GHS    | `PROVIDER_AUTH` |
+
+### Kenya
+
+| MMO   | Provider    | Devise | Auth            |
+| ----- | ----------- | ------ | --------------- |
+| MPesa | `MPESA_KEN` | KES    | `PROVIDER_AUTH` |
+
+### Rwanda
+
+| MMO    | Provider       | Devise | Auth            |
+| ------ | -------------- | ------ | --------------- |
+| Airtel | `AIRTEL_RWA`   | RWF    | `PROVIDER_AUTH` |
+| MTN    | `MTN_MOMO_RWA` | RWF    | `PROVIDER_AUTH` |
+
+### Sénégal
+
+| MMO    | Provider     | Devise | Auth            |
+| ------ | ------------ | ------ | --------------- |
+| Free   | `FREE_SEN`   | XOF    | `PROVIDER_AUTH` |
+| Orange | `ORANGE_SEN` | XOF    | `PROVIDER_AUTH` |
+| Wave   | `WAVE_SEN`   | XOF    | `REDIRECT_AUTH` |
+
+### Sierra Leone
+
+| MMO    | Provider     | Devise | Auth            |
+| ------ | ------------ | ------ | --------------- |
+| Orange | `ORANGE_SLE` | SLE    | `PROVIDER_AUTH` |
+
+### Tanzanie
+
+| MMO     | Provider      | Devise | Auth            |
+| ------- | ------------- | ------ | --------------- |
+| Airtel  | `AIRTEL_TZA`  | TZS    | `PROVIDER_AUTH` |
+| Vodacom | `VODACOM_TZA` | TZS    | `PROVIDER_AUTH` |
+| Tigo    | `TIGO_TZA`    | TZS    | `PROVIDER_AUTH` |
+| Halotel | `HALOTEL_TZA` | TZS    | `PROVIDER_AUTH` |
+
+### Ouganda
+
+| MMO    | Provider          | Devise | Auth            |
+| ------ | ----------------- | ------ | --------------- |
+| Airtel | `AIRTEL_OAPI_UGA` | UGX    | `PROVIDER_AUTH` |
+| MTN    | `MTN_MOMO_UGA`    | UGX    | `PROVIDER_AUTH` |
+
+---
+
+## Types d'authentification
+
+| Type            | Description                                            |
+| --------------- | ------------------------------------------------------ |
+| `PROVIDER_AUTH` | Authentification standard via l'opérateur Mobile Money |
+| `PREAUTH`       | Pré-autorisation avant débit                           |
+| `REDIRECT_AUTH` | Redirection vers une URL externe (ex: Wave)            |
+
+---
+
+## Exemple complet
+
+```bash
+# 1. Lancer le paiement
+curl -X POST https://www.dklo.co/api/tara/mobilepay \
+  -H "Authorization: Bearer ta_clé_privée" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "apiKey": "ta_clé_publique",
+    "businessId": "mon_business_id",
+    "productId": "article-42",
+    "productName": "T-shirt Tara",
+    "network": "",
+    "productPrice": 5000,
+    "phoneNumber": "237612345678",
+    "webHookUrl": "https://monsite.com/webhook/tara"
+  }'
+
+# Réponse
+# { "message": "API_ORDER_SUCESSFULL", "status": "SUCCESS", "vendor": "ORANGE_CAMEROON" }
+
+# 2. Le payeur reçoit une notification USSD et valide avec son code secret
+
+# 3. Tara envoie un POST à ton webhook
+# { "businessId": "mon_business_id", "paymentId": "pay_abc123", "status": "SUCCESS", ... }
+```
+
+<Card title="SDK React" icon="package" href="/sdk/react-sdk">
+  Utilise le SDK React pour intégrer Mobile Pay sans écrire de requêtes HTTP.
+</Card>
+
+<Card title="API Webhooks" icon="webhook" href="/api/webhooks">
+  Configure et sécurise tes endpoints webhook.
+</Card>
+
+<Card title="API CM Mobile" icon="file-braces" href="/api/cm-mobile">
+  Endpoint spécifique pour le Cameroun (Orange & MTN).
+</Card>

@@ -1,0 +1,158 @@
+---
+title: "API Payment Links"
+description: "Génère des liens de paiement multicanaux (WhatsApp, Telegram, SMS, carte bancaire) via l'API REST."
+---
+
+L'endpoint Payment Links génère un lien de paiement partageable. Le client clique et choisit son moyen de paiement parmi tous les canaux disponibles.
+
+<Tip>
+  Un seul appel API, et tu obtiens des liens pour **WhatsApp, Telegram, carte
+  bancaire, SMS et navigateur web**. Le client choisit le canal qui lui
+  convient.
+</Tip>
+
+## Endpoint
+
+```
+POST https://www.dklo.co/api/tara/paymentlinks
+```
+
+| Header          | Valeur                 |
+| --------------- | ---------------------- |
+| `Authorization` | `Bearer ta_clé_privée` |
+| `Content-Type`  | `application/json`     |
+
+---
+
+## Étape 1 — Corps de la requête
+
+```json
+{
+  "apiKey": "ta_clé_publique",
+  "businessId": "ton_business_id",
+  "productId": "product-456",
+  "productName": "T-shirt Tara",
+  "productPrice": 5000,
+  "productDescription": "T-shirt officiel Tara, livraison incluse",
+  "productPictureUrl": "https://example.com/image.jpg",
+  "returnUrl": "https://tonsite.com/confirmation",
+  "webHookUrl": "https://tonsite.com/webhook"
+}
+```
+
+### Paramètres
+
+| Paramètre            | Type     | Obligatoire | Description                                       |
+| -------------------- | -------- | ----------- | ------------------------------------------------- |
+| `apiKey`             | `string` | Oui         | Votre clé API publique                            |
+| `businessId`         | `string` | Oui         | Votre identifiant business                        |
+| `productId`          | `string` | Oui         | Identifiant unique du produit                     |
+| `productName`        | `string` | Oui         | Nom du produit ou service                         |
+| `productPrice`       | `number` | Oui         | Prix en FCFA (entier)                             |
+| `productDescription` | `string` | Oui         | Description du produit                            |
+| `productPictureUrl`  | `string` | Non         | URL de l'image du produit                         |
+| `returnUrl`          | `string` | Non         | URL de redirection après paiement                 |
+| `webHookUrl`         | `string` | Oui         | URL de webhook pour les notifications de paiement |
+
+<Card title="productId unique" icon="triangle-alert" color="#FF4400">
+  Le `productId` doit être **unique pour chaque appel**. Si tu réutilises un
+  `productId` déjà existant, l'API retournera une erreur. Utilise un identifiant
+  différent à chaque nouveau lien de paiement (ex: `prod_001`, `prod_002`, ou un
+  UUID).
+</Card>
+
+---
+
+## Étape 2 — Réponse attendue
+
+```json
+{
+  "status": "success",
+  "message": "Link successfully generated",
+  "whatsappLink": "https://wa.me/...",
+  "telegramLink": "https://t.me/...",
+  "dikaloLink": "https://dikalo.me/...",
+  "generalLink": "https://taramoney.com/pay/...",
+  "cardLink": "https://taramoney.com/card/...",
+  "smsLink": "sms:+2376...?body=..."
+}
+```
+
+### Champs de la réponse
+
+| Champ          | Description                                                                       |
+| -------------- | --------------------------------------------------------------------------------- |
+| `status`       | Statut de la création (`success` / `error`)                                       |
+| `message`      | Message de confirmation                                                           |
+| `whatsappLink` | Deep link WhatsApp — ouvre directement la conversation avec le message pré-rempli |
+| `telegramLink` | Deep link Telegram — ouvre le bot avec le message pré-rempli                      |
+| `dikaloLink`   | Deep link Dikalo (messagerie africaine)                                           |
+| `generalLink`  | Lien web universel — page de paiement responsive                                  |
+| `cardLink`     | Lien de paiement par carte bancaire                                               |
+| `smsLink`      | Lien SMS — pour les utilisateurs sans Internet (paiement par SMS)                 |
+
+---
+
+## Étape 3 — Exemple cURL
+
+```bash
+curl -X POST https://www.dklo.co/api/tara/paymentlinks \
+  -H "Authorization: Bearer ta_clé_privée" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "apiKey": "ta_clé_publique",
+    "businessId": "mon_business_id",
+    "productId": "article-42",
+    "productName": "T-shirt Tara",
+    "productPrice": 5000,
+    "productDescription": "T-shirt officiel Tara, livraison incluse",
+    "productPictureUrl": "https://monsite.com/images/tshirt.jpg",
+    "returnUrl": "https://monsite.com/merci",
+    "webHookUrl": "https://monsite.com/webhook/tara"
+  }'
+```
+
+---
+
+## Utilisation des liens
+
+Une fois la réponse obtenue, affiche les liens à ton client :
+
+```tsx
+// Exemple React
+const { whatsappLink, telegramLink, generalLink, cardLink } = response;
+
+return (
+  <div>
+    <a href={whatsappLink}>Payer via WhatsApp</a>
+    <a href={telegramLink}>Payer via Telegram</a>
+    <a href={cardLink}>Payer par carte</a>
+    <a href={generalLink}>Payer en ligne</a>
+  </div>
+);
+```
+
+Chaque lien ouvre le canal correspondant avec le montant et les détails du produit pré-remplis. Le client n'a plus qu'à valider.
+
+---
+
+## Flux complet
+
+1. **Tu appelles** `/paymentlinks` avec les détails du produit
+2. **Tu reçois** les 6 liens (WhatsApp, Telegram, Dikalo, Web, Carte, SMS)
+3. **Tu les affiches** à ton client
+4. **Le client choisit** son canal et paie
+5. **Tara t'envoie** un webhook au `webHookUrl` avec le statut du paiement
+
+<Card title="API Mobile Pay" icon="file-braces" href="/api/mobile-pay">
+  Endpoint pour les paiements Mobile Money directs (Orange, MTN, Wave).
+</Card>
+
+<Card title="SDK React" icon="package" href="/sdk/react-sdk">
+  Utilise `createPaymentLink()` depuis le SDK pour générer des liens sans
+  requête HTTP manuelle.
+</Card>
+
+<Card title="API Webhooks" icon="webhook" href="/api/webhooks">
+  Configure ton endpoint webhook pour recevoir les notifications de paiement.
+</Card>

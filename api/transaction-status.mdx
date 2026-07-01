@@ -1,0 +1,40 @@
+---
+title: "API Transaction Status"
+description: "Vérifie le statut d'une transaction par sa référence."
+---
+
+Vérifie le statut d'une transaction spécifique en utilisant sa référence unique.
+
+## Endpoint
+
+```
+GET https://www.dklo.co/api/tara/transaction-status
+```
+
+## Paramètres
+
+| Paramètre | Type | Obligatoire | Description |
+|-----------|------|-------------|-------------|
+| `reference` | string | Oui | Référence de la transaction |
+| `businessId` | string | Oui | Ton identifiant business |
+
+## Exemple
+
+```bash
+curl -X GET "https://www.dklo.co/api/tara/transaction-status?reference=txn_abc123&businessId=ton_business_id" \
+  -H "Authorization: Bearer ta_clé_privée"
+```
+
+## Réponse
+
+```json
+{
+  "reference": "txn_abc123",
+  "status": "SUCCESS",
+  "amount": 5000,
+  "phoneNumber": "2376xxxxxxxx",
+  "productId": "product-456",
+  "createdAt": "2026-06-15T14:30:00Z",
+  "confirmedAt": "2026-06-15T14:32:00Z"
+}
+```

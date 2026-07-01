@@ -1,0 +1,102 @@
+---
+title: "Guide : Configurer les webhooks"
+description: "Guide pour configurer un endpoint webhook et recevoir les événements Tara en temps réel."
+---
+
+Ce guide t'explique comment configurer un endpoint webhook pour recevoir les événements Tara (paiements, payouts) en temps réel sur ton serveur.
+
+## Prérequis
+
+- Un serveur avec un endpoint HTTPS public
+- Node.js 18+ (ou tout autre langage capable de recevoir des requêtes POST)
+- Un compte business Tara avec clés API
+
+## Étape 1 : Crée un endpoint
+
+Crée un endpoint sur ton serveur qui accepte les requêtes POST :
+
+```javascript
+// server.js (Node.js avec Express)
+const express = require('express')
+const app = express()
+
+app.use(express.json())
+
+app.post('/webhook/tara', (req, res) => {
+  const { event, data, timestamp } = req.body
+
+  console.log(`Événement reçu : ${event}`)
+  console.log('Données :', data)
+
+  // Traite l'événement selon son type
+  switch (event) {
+    case 'payment.success':
+      // Mettre à jour ta base de données
+      // Envoyer un email de confirmation
+      break
+    case 'payment.failed':
+      // Logger l'erreur
+      break
+  }
+
+  // Réponds toujours 200 rapidement
+  res.status(200).json({ received: true })
+})
+
+app.listen(3000, () => {
+  console.log('Serveur prêt sur le port 3000')
+})
+```
+
+## Étape 2 : Rends ton endpoint public
+
+Utilise un service comme [ngrok](https://ngrok.com) pour exposer ton serveur local, ou déploie sur un serveur public.
+
+```bash
+ngrok http 3000
+```
+
+## Étape 3 : Enregistre le webhook dans Tara
+
+Dans le dashboard Tara, va dans ta collecte → **Webhooks → Nouveau webhook** et renseigne l'URL publique de ton endpoint.
+
+## Étape 4 : Vérifie la signature
+
+Pour la sécurité, vérifie le header `X-Tara-Signature` :
+
+```javascript
+const crypto = require('crypto')
+
+app.post('/webhook/tara', (req, res) => {
+  const signature = req.headers['x-tara-signature']
+  const payload = JSON.stringify(req.body)
+  const secret = process.env.TARA_WEBHOOK_SECRET
+
+  const expected = crypto
+    .createHmac('sha256', secret)
+    .update(payload)
+    .digest('hex')
+
+  if (signature !== expected) {
+    return res.status(401).json({ error: 'Signature invalide' })
+  }
+
+  // Traite l'événement...
+  res.status(200).json({ received: true })
+})
+```
+
+## Bonnes pratiques
+
+- **Réponds rapidement** (moins de 5 secondes) — sinon Tara considère le webhook comme échoué
+- **Traite les événements de façon asynchrone** — utilise une queue si le traitement est long
+- **Idempotence** : un même événement peut être envoyé plusieurs fois (utilise la référence pour éviter les doublons)
+- **Logs** : garde un historique des webhooks reçus pour le debugging
+
+<Card
+  title="API Webhooks"
+  icon="file-braces"
+  href="/api/webhooks"
+>
+  Référence complète de l'API Webhooks.
+</Card>

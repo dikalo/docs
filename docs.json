@@ -1,0 +1,166 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Tara Docs",
+  "description": "Documentation de l'écosystème Tara — Simplifier la finance africaine via WhatsApp, Telegram, et une API puissante.",
+  "colors": {
+    "primary": "#FF4400",
+    "light": "#FF5722",
+    "dark": "#FF4400"
+  },
+  "favicon": "/favicon.ico",
+  "icons": {
+    "library": "lucide"
+  },
+  "navigation": {
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Documentation",
+          "href": "/index",
+          "icon": "book-open"
+        },
+        {
+          "anchor": "Blog",
+          "href": "https://www.taramoney.com/blog",
+          "icon": "newspaper"
+        }
+      ]
+    },
+    "pages": [
+      {
+        "group": "Getting Started",
+        "pages": ["index", "quickstart"]
+      },
+      {
+        "group": "Tara Wallet (Consumer)",
+        "pages": [
+          "wallet/whatsapp",
+          "wallet/telegram",
+          "wallet/tontines",
+          "wallet/voice-assistant"
+        ]
+      },
+      {
+        "group": "TaraMoney (Business)",
+        "pages": [
+          "business/dashboard",
+          "business/collections",
+          "business/payments",
+          "business/payouts",
+          "business/customers",
+          "business/votes",
+          "business/affiliation",
+          "business/kyc",
+          "business/settings"
+        ]
+      },
+      {
+        "group": "API Reference",
+        "pages": [
+          "api/authentication",
+          "api/mobile-pay",
+          "api/payment-links",
+          "api/payout",
+          "api/transaction-status",
+          "api/transaction-list",
+          "api/user-identity",
+          "api/webhooks",
+          "api/resend-webhook"
+        ]
+      },
+      {
+        "group": "SDK & Intégration",
+        "pages": ["sdk/react-sdk", "sdk/qr-codes"]
+      },
+      {
+        "group": "Guides pratiques",
+        "pages": [
+          "guides/message-format",
+          "guides/create-collection",
+          "guides/webhooks-setup",
+          "guides/become-agent"
+        ]
+      },
+      {
+        "group": "Ressources",
+        "pages": ["resources/faq", "resources/terms"]
+      },
+      {
+        "group": "Mises à jour",
+        "pages": ["changelog"]
+      }
+    ]
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Support",
+        "href": "mailto:hi@mintlify.com"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Dashboard",
+      "href": "https://www.taramoney.com"
+    }
+  },
+  "contextual": {
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "mcp",
+      "cursor",
+      "vscode"
+    ]
+  },
+  "footer": {
+    "socials": {
+      "x": "https://x.com/tarabydikalo",
+      "youtube": "https://www.youtube.com/@tarabydikalo"
+    },
+    "links": [
+      {
+        "header": "Produits",
+        "items": [
+          {
+            "label": "TaraMoney.com",
+            "href": "https://www.taramoney.com"
+          },
+          {
+            "label": "Tara Wallet",
+            "href": "https://www.taramoney.com/wallet"
+          }
+        ]
+      },
+      {
+        "header": "Ressources",
+        "items": [
+          {
+            "label": "Blog",
+            "href": "https://www.taramoney.com/blog"
+          },
+          {
+            "label": "Aide",
+            "href": "https://www.taramoney.com/help"
+          }
+        ]
+      }
+    ]
+  },
+  "seo": {
+    "metatags": {
+      "og:site_name": "Tara Docs",
+      "og:locale": "fr_FR",
+      "twitter:site": "@tarabydikalo",
+      "twitter:card": "summary_large_image"
+    }
+  }
+}

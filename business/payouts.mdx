@@ -1,0 +1,73 @@
+---
+title: "Payouts"
+description: "Envoie de l'argent vers n'importe quel compte Mobile Money. Payouts instantanés ou programmés."
+---
+
+Le payout (ou retrait) te permet d'envoyer de l'argent depuis ton compte Tara vers un compte Mobile Money. Utile pour payer des fournisseurs, des employés, ou les gagnants d'une tontine.
+
+<Tip>
+  Les payouts sont protégés par ta clé privée. Garde-la côté serveur uniquement.
+</Tip>
+
+## Créer un payout
+
+<Steps>
+  <Step title="Nouveau payout">
+    Dans le dashboard, va dans **Payout → Nouveau payout**.
+  </Step>
+  <Step title="Renseigne le bénéficiaire">
+    - Numéro de téléphone du destinataire
+    - Nom complet
+    - Réseau (Orange ou MTN)
+  </Step>
+  <Step title="Montant et motif">
+    - Montant en FCFA
+    - Motif (optionnel mais recommandé)
+  </Step>
+  <Step title="Confirme">
+    Vérifie les détails et confirme. Le bénéficiaire reçoit l'argent instantanément.
+  </Step>
+</Steps>
+
+## Payouts API
+
+Pour les payout programmatiques, utilise l'endpoint API :
+
+```bash
+curl -X POST https://www.dklo.co/api/tara/payout \
+  -H "Authorization: Bearer ta_clé_privée" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "apiKey": "ta_clé_publique",
+    "businessId": "ton_business_id",
+    "phoneNumber": "2376xxxxxxxx",
+    "amount": 50000,
+    "network": "ORANGE_CAMEROON",
+    "description": "Salaire Janvier"
+  }'
+```
+
+## Sécurité
+
+- Les payouts nécessitent la **clé privée**
+- Un **code de confirmation** peut être exigé pour les montants élevés
+- Chaque payout est **journalisé** et traçable
+- Limite de montant configurable par jour
+
+## Historique
+
+L'historique des payouts affiche :
+
+- Date et heure
+- Bénéficiaire
+- Montant
+- Statut (Succès, Échoué, En attente)
+- Référence unique
+
+<Card
+  title="API Payout"
+  icon="file-braces"
+  href="/api/payout"
+>
+  Documentation complète de l'endpoint Payout.
+</Card>

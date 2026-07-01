@@ -1,0 +1,118 @@
+---
+title: "QR Codes"
+description: "Génère des QR codes de paiement pour tes collectes. Imprimables, scannables, personnalisables."
+---
+
+Chaque collecte Tara peut générer un QR code. Le client scanne avec WhatsApp ou Telegram et paie en quelques secondes.
+
+<Tip>
+  Le QR code contient un deep link qui ouvre directement la messagerie avec un message de paiement pré-rempli. Zéro friction.
+</Tip>
+
+## Via le SDK React
+
+```tsx
+import { QrCode } from "@taramoney/react-sdk";
+
+// QR code avec montant fixe — 256px, PNG par défaut
+<QrCode amount={5000} collectionName="collecte_scolaire" />
+
+// QR code à montant libre
+<QrCode collectionName="dons_libres" size={200} />
+
+// Format portrait (1080×1920) pour stories mobile
+<QrCode amount={1000} collectionName="test" format="portrait" size={256} />
+
+// Format paysage (1920×1080) pour affiches
+<QrCode amount={2000} collectionName="test" format="paysage" size={300} />
+```
+
+### Props
+
+| Prop | Type | Défaut | Description |
+|------|------|--------|-------------|
+| `collectionName` | `string` | — | Nom de la collecte (**obligatoire**) |
+| `amount` | `number` | — | Montant fixe (libre si absent) |
+| `size` | `number` | `256` | Taille en pixels |
+| `format` | `QrCodeFormat` | `"png"` | `"png"` \| `"svg"` \| `"portrait"` \| `"paysage"` \| `"square"` |
+| `className` | `string` | — | Classe CSS additionnelle |
+
+## Via l'API
+
+```bash
+curl -X GET "https://www.dklo.co/api/tara/qrcode?collectionName=collecte_scolaire&amount=5000&format=png&size=256" \
+  -H "Authorization: Bearer ta_clé_privée"
+```
+
+### Paramètres API
+
+| Paramètre | Type | Description |
+|-----------|------|-------------|
+| `collectionName` | `string` | Nom de la collecte |
+| `amount` | `number` | Montant (optionnel) |
+| `format` | `string` | `png`, `svg`, `portrait`, `paysage`, `square` |
+| `size` | `number` | Taille en pixels |
+
+## Via le client SDK
+
+```tsx
+import { useTara } from "@taramoney/react-sdk";
+
+function MonQrCode() {
+  const { client } = useTara();
+  const qrUrl = client.getQrCodeUrl("collecte_scolaire", 5000, "png", 256);
+
+  return <img src={qrUrl} alt="QR Code Tara" />;
+}
+```
+
+## Formats disponibles
+
+| Format | Dimensions | Usage |
+|--------|-----------|-------|
+| `png` | Taille × Taille | Web, email, réseaux sociaux |
+| `svg` | Vectoriel | Impressions haute qualité |
+| `portrait` | 1080×1920 | Stories WhatsApp/Instagram |
+| `paysage` | 1920×1080 | Affiches, flyers, écrans |
+| `square` | 1024×1024 | Sites web, posts réseaux sociaux |
+
+## Deep link
+
+Le QR code encode un deep link qui, une fois scanné, ouvre WhatsApp ou Telegram avec le message de paiement pré-rempli :
+
+**WhatsApp :**
+```
+{whatsappLink}@{amount}@{userId}@{sourceId}
+```
+
+**Telegram :**
+```
+{telegramLink}-{amount}-{userId}-{sourceId}
+```
+
+Le `userId` est optionnel — présent uniquement si `userIdRequired === true`.
+
+## Personnalisation
+
+Le QR code inclut automatiquement :
+
+- Le **logo Tara** en filigrane
+- Le **nom de la collecte** en légende
+- Le **montant** (si fixe)
+- Des **instructions simples** (« Scanne pour payer »)
+
+<Card
+  title="SDK React"
+  icon="package"
+  href="/sdk/react-sdk"
+>
+  Composant QrCode et toutes les APIs du SDK.
+</Card>
+
+<Card
+  title="Format des messages"
+  icon="file-text"
+  href="/guides/message-format"
+>
+  Spécification du format des messages parsés par le bot.
+</Card>

@@ -1,0 +1,58 @@
+---
+title: "API User Identity"
+description: "Vérifie l'identité d'un utilisateur via son numéro de téléphone."
+---
+
+L'endpoint User Identity permet de vérifier les informations associées à un numéro de téléphone Mobile Money.
+
+## Endpoint
+
+```
+POST https://www.dklo.co/api/tara/useridentity
+```
+
+## Corps de la requête
+
+| Paramètre | Type | Obligatoire | Description |
+|-----------|------|-------------|-------------|
+| `apiKey` | string | Oui | Ta clé publique |
+| `businessId` | string | Oui | Ton identifiant business |
+| `phoneNumber` | string | Oui | Numéro à vérifier |
+
+## Exemple
+
+```bash
+curl -X POST https://www.dklo.co/api/tara/useridentity \
+  -H "Authorization: Bearer ta_clé_privée" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "apiKey": "ta_clé_publique",
+    "businessId": "ton_business_id",
+    "phoneNumber": "2376xxxxxxxx"
+  }'
+```
+
+## Réponse
+
+```json
+{
+  "phoneNumber": "2376xxxxxxxx",
+  "network": "ORANGE_CAMEROON",
+  "isVerified": true,
+  "name": "Eric M."
+}
+```
+
+## Cas d'usage
+
+- Vérifier qu'un numéro est bien un compte Mobile Money actif avant d'initier un payout
+- Récupérer le nom associé à un numéro pour le pré-remplissage de formulaire
+- Valider le réseau (Orange vs MTN) d'un numéro
+
+<Card
+  title="KYC Business"
+  icon="shield-check"
+  href="/business/kyc"
+>
+  Vérification d'identité dans le dashboard business.
+</Card>

@@ -1,0 +1,85 @@
+---
+title: "Authentification API"
+description: "Authentifie-toi à l'API Tara avec tes clés publiques et privées."
+---
+
+Toutes les requêtes à l'API Tara nécessitent une authentification. Tu obtiens tes clés API depuis le dashboard TaraMoney.
+
+<Tip>
+  **Clé publique** = côté client (sécurisée pour le frontend). **Clé privée** = côté serveur uniquement. Ne partage jamais ta clé privée.
+</Tip>
+
+## Obtenir tes clés API
+
+1. Connecte-toi à [taramoney.com](https://www.taramoney.com)
+2. Va dans **Paramètres → API**
+3. Clique sur **Générer de nouvelles clés**
+4. Copie ta clé publique et ta clé privée
+
+## Authentification
+
+Toutes les requêtes API doivent inclure un header `Authorization` avec ta clé privée :
+
+```bash
+Authorization: Bearer ta_clé_privée
+```
+
+Exemple :
+
+```bash
+curl -X POST https://www.dklo.co/api/tara/mobilepay \
+  -H "Authorization: Bearer ta_clé_privée" \
+  -H "Content-Type: application/json" \
+  -d '{ ... }'
+```
+
+## Clé publique vs Clé privée
+
+| Clé | Usage | Où l'utiliser |
+|-----|-------|---------------|
+| **Publique** | Initier des paiements, afficher des collectes | Frontend (React SDK, JavaScript) |
+| **Privée** | Payouts, webhooks, gestion des collectes | Backend uniquement |
+
+## Transmettre la clé publique
+
+Pour les requêtes qui nécessitent les deux clés, la clé publique est passée dans le corps de la requête :
+
+```json
+{
+  "apiKey": "ta_clé_publique",
+  "businessId": "ton_business_id",
+  ...
+}
+```
+
+## businessId
+
+En plus des clés, tu dois fournir ton `businessId`. Tu le trouves dans **Paramètres → Profil**.
+
+## Sécurité
+
+- Ne **commit jamais** tes clés dans un dépôt Git
+- Utilise des **variables d'environnement** pour stocker ta clé privée
+- **Révoque** immédiatement une clé compromise depuis le dashboard
+- Renouvelle tes clés tous les 6 mois
+
+```bash
+# Exemple avec variable d'environnement
+export TARA_PRIVATE_KEY="ta_clé_privée"
+export TARA_PUBLIC_KEY="ta_clé_publique"
+```
+
+## Erreurs d'authentification
+
+| Code | Message | Signification |
+|------|---------|---------------|
+| 401 | `UNAUTHORIZED` | Clé manquante ou invalide |
+| 403 | `FORBIDDEN` | Clé valide mais permissions insuffisantes |
+
+<Card
+  title="API Mobile Pay"
+  icon="file-braces"
+  href="/api/mobile-pay"
+>
+  Premier endpoint à explorer après l'authentification.
+</Card>

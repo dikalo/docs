@@ -1,0 +1,68 @@
+---
+title: "Vérification d'identité (KYC)"
+description: "Vérifie l'identité de tes utilisateurs. Conforme aux réglementations bancaires."
+---
+
+Le système KYC (Know Your Customer) de Tara te permet de vérifier l'identité de tes utilisateurs. Obligatoire pour certaines fonctionnalités avancées.
+
+<Tip>
+  La vérification KYC utilise Ballerine, un leader de la vérification d'identité en Afrique.
+</Tip>
+
+## Pourquoi le KYC ?
+
+- **Conformité réglementaire** : exigé par les régulateurs bancaires
+- **Sécurité** : réduit la fraude et l'usurpation d'identité
+- **Confiance** : rassure tes clients et partenaires
+- **Fonctionnalités avancées** : nécessaire pour les payouts et montants élevés
+
+## Processus de vérification
+
+<Steps>
+  <Step title="Lance la vérification">
+    Dans **Paramètres → Vérification**, clique sur "Vérifier mon identité".
+  </Step>
+  <Step title="Fournis tes documents">
+    - Pièce d'identité (CNI, passeport, carte de séjour)
+    - Selfie pour vérification faciale
+    - Justificatif de domicile (optionnel selon le niveau)
+  </Step>
+  <Step title="Attends la validation">
+    La vérification prend généralement quelques minutes. Tu es notifié dès qu'elle est terminée.
+  </Step>
+</Steps>
+
+## Niveaux KYC
+
+| Niveau | Documents requis | Limites |
+|--------|-----------------|---------|
+| Basique | Numéro de téléphone | Paiements jusqu'à 100 000 FCFA/jour |
+| Standard | Pièce d'identité + Selfie | Paiements jusqu'à 1 000 000 FCFA/jour |
+| Avancé | Standard + Justificatif | Paiements illimités + Payouts |
+
+## Vérification des utilisateurs (API)
+
+Tu peux aussi vérifier l'identité de tes propres utilisateurs via l'API :
+
+```
+POST /api/tara/useridentity
+```
+
+Voir [API User Identity](/api/user-identity).
+
+## Admin KYC
+
+L'interface admin permet de :
+
+- Voir toutes les demandes de vérification
+- Approuver ou rejeter manuellement
+- Demander des documents supplémentaires
+- Voir l'historique de vérification par utilisateur
+
+<Card
+  title="API User Identity"
+  icon="file-braces"
+  href="/api/user-identity"
+>
+  Endpoint pour vérifier l'identité d'un utilisateur.
+</Card>

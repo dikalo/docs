@@ -1,0 +1,68 @@
+---
+title: "API Paiements"
+description: "Récupère la liste des paiements et les détails d'une transaction."
+---
+
+L'endpoint Paiements te permet de lister et rechercher les transactions liées à ton business.
+
+## Endpoint
+
+```
+GET https://www.dklo.co/api/tara/payments
+```
+
+## Headers
+
+| Header | Valeur |
+|--------|--------|
+| `Authorization` | `Bearer ta_clé_privée` |
+
+## Paramètres de requête
+
+| Paramètre | Type | Obligatoire | Description |
+|-----------|------|-------------|-------------|
+| `businessId` | string | Oui | Ton identifiant business |
+| `status` | string | Non | Filtrer par statut (`SUCCESS`, `PENDING`, `FAILED`) |
+| `startDate` | string | Non | Date de début (ISO 8601) |
+| `endDate` | string | Non | Date de fin (ISO 8601) |
+| `collectionId` | string | Non | Filtrer par collecte |
+| `limit` | number | Non | Nombre de résultats (défaut: 50) |
+| `offset` | number | Non | Pagination |
+
+## Exemple de requête
+
+```bash
+curl -X GET "https://www.dklo.co/api/tara/payments?businessId=ton_business_id&status=SUCCESS&limit=20" \
+  -H "Authorization: Bearer ta_clé_privée"
+```
+
+## Exemple de réponse
+
+```json
+{
+  "total": 150,
+  "limit": 20,
+  "offset": 0,
+  "payments": [
+    {
+      "id": "txn_abc123",
+      "amount": 5000,
+      "currency": "FCFA",
+      "status": "SUCCESS",
+      "phoneNumber": "2376xxxxxxxx",
+      "productId": "product-456",
+      "productName": "Collecte scolaire",
+      "network": "ORANGE_CAMEROON",
+      "createdAt": "2026-06-15T14:30:00Z"
+    }
+  ]
+}
+```
+
+<Card
+  title="API Transaction Status"
+  icon="file-braces"
+  href="/api/transaction-status"
+>
+  Vérifie le statut d'une transaction spécifique.
+</Card>

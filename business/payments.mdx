@@ -1,0 +1,72 @@
+---
+title: "Paiements"
+description: "Suis chaque transaction en temps réel. Filtre, exporte, et rapproche tes paiements."
+---
+
+La section **Paiements** du dashboard affiche toutes les transactions entrantes. Chaque paiement est horodaté, tracé, et exportable.
+
+<Tip>
+  Tous les paiements apparaissent en temps réel via WebSocket. Pas besoin de rafraîchir la page.
+</Tip>
+
+## Liste des paiements
+
+Le tableau des paiements affiche :
+
+| Colonne | Description |
+|---------|-------------|
+| Client | Nom ou numéro du payeur |
+| Montant | Montant payé en FCFA |
+| Collecte | Nom de la collecte associée |
+| Canal | Orange Money, MTN, ou Carte |
+| Statut | Succès, En attente, Échoué |
+| Date | Date et heure du paiement |
+
+## Statuts de paiement
+
+| Statut | Description |
+|--------|-------------|
+| `SUCCESS` | Paiement confirmé |
+| `PENDING` | En attente de confirmation Mobile Money |
+| `FAILED` | Paiement échoué |
+| `CANCELLED` | Annulé par l'utilisateur |
+
+## Filtrer et trier
+
+- **Par statut** : succès, en attente, échoué
+- **Par période** : aujourd'hui, 7 jours, 30 jours, personnalisé
+- **Par collecte** : une collecte spécifique
+- **Par canal** : Orange, MTN, Carte
+- **Recherche** : par nom, numéro, référence
+
+## Export
+
+Exporte tes paiements en :
+
+- **PDF** : pour la comptabilité
+- **CSV** : pour Excel / Sage
+- **API** : endpoint `/api/tara/transactionlist`
+
+## Rapprochement
+
+Le dashboard facilite le rapprochement bancaire :
+
+- Chaque paiement a une **référence unique**
+- Tu peux **taguer** les paiements (ex: "Comptabilité Q1", "À vérifier")
+- Les **exports** sont formatés pour Sage et Excel
+
+## Paiements par carte
+
+En plus du Mobile Money, Tara accepte les paiements par carte bancaire via Stripe. Le payeur voit une interface de paiement sécurisée.
+
+## Temps réel
+
+Grâce à la connexion WebSocket, les nouveaux paiements apparaissent instantanément dans le tableau, sans rechargement de page.
+
+<Card
+  title="API Paiements"
+  icon="file-braces"
+  href="/api/payments"
+>
+  Récupère la liste des transactions via l'API REST.
+</Card>

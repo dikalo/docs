@@ -1,0 +1,52 @@
+---
+title: "API Transaction List"
+description: "Liste paginée de toutes les transactions de ton business."
+---
+
+Récupère une liste paginée de toutes les transactions de ton business avec filtres.
+
+## Endpoint
+
+```
+GET https://www.dklo.co/api/tara/transactionlist
+```
+
+## Paramètres
+
+| Paramètre | Type | Obligatoire | Description |
+|-----------|------|-------------|-------------|
+| `businessId` | string | Oui | Ton identifiant business |
+| `page` | number | Non | Page (défaut: 1) |
+| `perPage` | number | Non | Résultats par page (défaut: 50) |
+| `status` | string | Non | Filtrer par statut |
+| `network` | string | Non | Filtrer par réseau |
+| `startDate` | string | Non | Date de début |
+| `endDate` | string | Non | Date de fin |
+
+## Exemple
+
+```bash
+curl -X GET "https://www.dklo.co/api/tara/transactionlist?businessId=ton_business_id&page=1&perPage=20&status=SUCCESS" \
+  -H "Authorization: Bearer ta_clé_privée"
+```
+
+## Réponse
+
+```json
+{
+  "page": 1,
+  "perPage": 20,
+  "total": 245,
+  "transactions": [
+    {
+      "reference": "txn_abc123",
+      "amount": 5000,
+      "status": "SUCCESS",
+      "network": "ORANGE_CAMEROON",
+      "phoneNumber": "2376xxxxxxxx",
+      "productName": "Collecte scolaire",
+      "createdAt": "2026-06-15T14:30:00Z"
+    }
+  ]
+}
+```

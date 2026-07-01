@@ -1,0 +1,102 @@
+---
+title: "API Webhooks"
+description: "Configure des webhooks pour être notifié en temps réel des événements de paiement."
+---
+
+Les webhooks permettent à Tara de notifier ton serveur à chaque événement : paiement reçu, paiement échoué, payout confirmé.
+
+<Tip>
+  Configure un endpoint HTTPS sur ton serveur qui accepte les requêtes POST. Tara y enverra les événements en temps réel.
+</Tip>
+
+## Configurer un webhook
+
+Dans le dashboard, va dans la collecte concernée → **Webhooks → Nouveau webhook**, et renseigne l'URL de ton endpoint.
+
+Ou via l'API :
+
+```bash
+curl -X POST https://www.dklo.co/api/tara/webhook \
+  -H "Authorization: Bearer ta_clé_privée" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "apiKey": "ta_clé_publique",
+    "businessId": "ton_business_id",
+    "url": "https://tonsite.com/webhook",
+    "events": ["payment.success", "payment.failed"]
+  }'
+```
+
+## Événements
+
+| Événement | Déclencheur |
+|-----------|------------|
+| `payment.success` | Paiement confirmé |
+| `payment.failed` | Paiement échoué |
+| `payment.pending` | Paiement en attente |
+| `payout.success` | Payout confirmé |
+| `payout.failed` | Payout échoué |
+
+## Format du payload
+
+```json
+{
+  "event": "payment.success",
+  "data": {
+    "reference": "txn_abc123",
+    "amount": 5000,
+    "currency": "FCFA",
+    "phoneNumber": "2376xxxxxxxx",
+    "productId": "product-456",
+    "productName": "Collecte scolaire",
+    "network": "ORANGE_CAMEROON",
+    "status": "SUCCESS",
+    "createdAt": "2026-06-15T14:30:00Z"
+  },
+  "timestamp": "2026-06-15T14:32:00Z"
+}
+```
+
+## Sécurité des webhooks
+
+Tara signe chaque webhook avec un header `X-Tara-Signature`. Vérifie cette signature côté serveur pour t'assurer que la requête vient bien de Tara.
+
+```javascript
+// Exemple de vérification côté serveur (Node.js)
+const crypto = require('crypto')
+
+function verifySignature(payload, signature, secret) {
+  const expected = crypto
+    .createHmac('sha256', secret)
+    .update(JSON.stringify(payload))
+    .digest('hex')
+  return crypto.timingSafeEqual(
+    Buffer.from(signature),
+    Buffer.from(expected)
+  )
+}
+```
+
+## Retry policy
+
+Si ton endpoint ne répond pas (timeout ou erreur 5xx), Tara retente l'envoi :
+
+- 1ère tentative : immédiatement
+- 2ème tentative : après 1 minute
+- 3ème tentative : après 5 minutes
+- 4ème tentative : après 15 minutes
+- 5ème tentative : après 1 heure
+
+Après 5 échecs, le webhook est désactivé. Tu reçois une notification dans le dashboard.
+
+## Renvoyer un webhook
+
+Si un webhook a échoué, tu peux le renvoyer manuellement. Voir [Resend Webhook](/api/resend-webhook).
+
+<Card
+  title="Resend Webhook"
+  icon="refresh-cw"
+  href="/api/resend-webhook"
+>
+  Renvoie un webhook qui a échoué.
+</Card>

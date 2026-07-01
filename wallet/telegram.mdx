@@ -1,0 +1,74 @@
+---
+title: "Paiements Telegram"
+description: "Reçois et envoie de l'argent via Telegram. Idéal pour les communautés et les groupes."
+---
+
+Tara Wallet fonctionne aussi sur Telegram. Même simplicité, avec la puissance des groupes pour les tontines et collectes communautaires.
+
+<Tip>
+  Ajoute **@TaraSmartBot** à ton groupe Telegram et laisse Tara gérer les
+  cotisations. Tranquille.
+</Tip>
+
+## Comment ça marche ?
+
+### Rejoindre Tara sur Telegram
+
+Ajoute le bot [@TaraSmartBot](https://t.me/TaraSmartBot) sur Telegram ou scanne le QR code sur [taramoney.com](https://www.taramoney.com).
+
+### Payer une collecte
+
+```
+Bonjour Tara ! Je souhaite payer 5000 FCFA pour @collecte_scolaire. Réf: abcdef123456
+```
+
+### Offrir un cadeau
+
+```
+Bonjour Tara ! Je souhaite offrir Maïs Braisé ×2 (200 FCFA) pour @collecte_scolaire | index:87 | anonyme:false | ref:abc123
+```
+
+## Tara dans les groupes
+
+Ajoute **@TaraSmartBot** à ton groupe Telegram pour :
+
+- **Gérer une tontine** : Tara collecte automatiquement les cotisations des membres
+- **Votes communautaires** : les membres votent directement dans le groupe
+- **Collectes participatives** : chaque membre voit qui a payé en temps réel
+
+### Commandes du bot
+
+| Commande         | Description                           |
+| ---------------- | ------------------------------------- |
+| `/start`         | Démarrer avec Tara                    |
+| `/pay [montant]` | Initier un paiement                   |
+| `/tontine`       | Voir le statut de la tontine          |
+| `/historique`    | Historique des transactions du groupe |
+| `/aide`          | Afficher l'aide                       |
+
+## Deep link Telegram
+
+```
+{telegramLink}-{amount}-{userId}-{sourceId}
+```
+
+| Paramètre      | Description                          |
+| -------------- | ------------------------------------ |
+| `telegramLink` | Lien Telegram du bot                 |
+| `amount`       | Montant du paiement en FCFA          |
+| `userId`       | Identifiant utilisateur (optionnel)  |
+| `sourceId`     | UUID sans tirets pour la traçabilité |
+
+## WhatsApp vs Telegram
+
+| Fonctionnalité     | WhatsApp | Telegram |
+| ------------------ | -------- | -------- |
+| Paiement           | ✅       | ✅       |
+| Cadeaux            | ✅       | ✅       |
+| Tontines de groupe | ✅       | ✅       |
+| Commandes slash    | ❌       | ✅       |
+| Bot API            | ❌       | ✅       |
+
+<Card title="Guide WhatsApp" icon="message-02" href="/wallet/whatsapp">
+  Même fonctionnement, sur WhatsApp.
+</Card>

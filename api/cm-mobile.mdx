@@ -1,0 +1,39 @@
+---
+title: "API CM Mobile"
+description: "Endpoint spécifique pour les transactions Cameroon Mobile."
+---
+
+L'endpoint CM Mobile est optimisé pour les transactions Cameroon Mobile.
+
+## Endpoint
+
+```
+POST https://www.dklo.co/api/tara/cmmobile
+```
+
+## Corps de la requête
+
+| Paramètre | Type | Obligatoire | Description |
+|-----------|------|-------------|-------------|
+| `apiKey` | string | Oui | Ta clé publique |
+| `businessId` | string | Oui | Ton identifiant business |
+| `phoneNumber` | string | Oui | Numéro du client |
+| `amount` | number | Oui | Montant en FCFA |
+| `productId` | string | Oui | Identifiant du produit |
+| `productName` | string | Oui | Nom du produit |
+
+## Exemple
+
+```bash
+curl -X POST https://www.dklo.co/api/tara/cmmobile \
+  -H "Authorization: Bearer ta_clé_privée" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "apiKey": "ta_clé_publique",
+    "businessId": "ton_business_id",
+    "phoneNumber": "2376xxxxxxxx",
+    "amount": 2000,
+    "productId": "prod-001",
+    "productName": "Abonnement mensuel"
+  }'
+```

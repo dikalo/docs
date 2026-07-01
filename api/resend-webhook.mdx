@@ -1,0 +1,44 @@
+---
+title: "API Resend Webhook"
+description: "Renvoie manuellement un webhook qui a échoué."
+---
+
+Si un webhook n'a pas pu être livré (endpoint down, timeout, etc.), tu peux le renvoyer manuellement.
+
+## Endpoint
+
+```
+POST https://www.dklo.co/api/tara/resend-webhook
+```
+
+## Corps de la requête
+
+| Paramètre | Type | Obligatoire | Description |
+|-----------|------|-------------|-------------|
+| `apiKey` | string | Oui | Ta clé publique |
+| `businessId` | string | Oui | Ton identifiant business |
+| `webhookId` | string | Oui | ID du webhook à renvoyer |
+| `transactionReference` | string | Oui | Référence de la transaction concernée |
+
+## Exemple
+
+```bash
+curl -X POST https://www.dklo.co/api/tara/resend-webhook \
+  -H "Authorization: Bearer ta_clé_privée" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "apiKey": "ta_clé_publique",
+    "businessId": "ton_business_id",
+    "webhookId": "wh_abc123",
+    "transactionReference": "txn_abc123"
+  }'
+```
+
+## Réponse
+
+```json
+{
+  "status": "SUCCESS",
+  "message": "Webhook renvoyé avec succès"
+}
+```

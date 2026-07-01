@@ -1,0 +1,95 @@
+---
+title: "Format des messages WhatsApp / Telegram"
+description: "Spécification du format des messages pour le parsing automatique par le bot Tara."
+---
+
+Lorsqu'un utilisateur paie via WhatsApp ou Telegram, un message structuré est envoyé au bot Tara. Le bot parse ce message pour extraire les informations de paiement.
+
+## Format standard (paiement simple)
+
+```
+Bonjour Tara ! Je souhaite payer {amount} FCFA pour @{collectionName}. Réf: {ref}
+```
+
+**Exemple :**
+```
+Bonjour Tara ! Je souhaite payer 5000 FCFA pour @collecte_scolaire. Réf: abcdef123456
+```
+
+### Règles d'extraction
+
+| Token | Type | Règle Regex |
+|-------|------|-------------|
+| Montant | `number` | `/payer (\d+) FCFA/` |
+| Collecte | `string` | `/@(\S+)\.?\s*Réf/` |
+| Référence | `string` | `/Réf:\s*(\S+)$/` |
+
+## Format cadeau
+
+```
+Bonjour Tara ! Je souhaite offrir {giftName} ×{giftCount} ({amount} FCFA) pour @{collectionName} | index:{giftIndex} | anonyme:{giftAnonyme} | ref:{ref}
+```
+
+**Exemple :**
+```
+Bonjour Tara ! Je souhaite offrir Maïs Braisé ×2 (200 FCFA) pour @collecte_scolaire | index:87 | anonyme:false | ref:abc123
+```
+
+### Règles d'extraction
+
+| Token | Type | Règle |
+|-------|------|-------|
+| `giftName` | `string` | `/offrir (.+?) ×/` |
+| `giftCount` | `number` | `/×(\d+)/` |
+| `amount` | `number` | `/\((\d+) FCFA\)/` |
+| `collectionName` | `string` | `/@(\S+?)\s*\|/` |
+| `giftIndex` | `string` | `/index:(\S+)/` |
+| `giftAnonyme` | `string` | `/anonyme:(\S+)/` |
+| `ref` | `string` | `/ref:(\S+)$/` |
+
+## Détection du type de message
+
+| Mot-clé | Type |
+|---------|------|
+| `Je souhaite payer` / `I would like to pay` | Paiement simple |
+| `Je souhaite offrir` / `I would like to gift` | Cadeau |
+
+## Deep link URL
+
+**WhatsApp :**
+```
+{whatsappLink}@{amount}@{userId}@{sourceId}
+```
+
+**Telegram :**
+```
+{telegramLink}-{amount}-{userId}-{sourceId}
+```
+
+Le `userId` est optionnel — présent uniquement si `userIdRequired === true`.
+
+## Traductions
+
+**Français :**
+- Paiement : `Bonjour Tara ! Je souhaite payer {amount} FCFA pour @{collectionName}. Réf: {ref}`
+- Cadeau : `Bonjour Tara ! Je souhaite offrir {giftName} ×{giftCount} ({amount} FCFA) pour @{collectionName} | index:{giftIndex} | anonyme:{giftAnonyme} | ref:{ref}`
+
+**Anglais :**
+- Paiement : `Hello Tara! I would like to pay {amount} FCFA for @{collectionName}. Ref: {ref}`
+- Cadeau : `Hello Tara! I would like to gift {giftName} ×{giftCount} ({amount} FCFA) for @{collectionName} | index:{giftIndex} | anonyme:{giftAnonyme} | ref:{ref}`
+
+<Card
+  title="WhatsApp"
+  icon="message-02"
+  href="/wallet/whatsapp"
+>
+  Utilisation de Tara sur WhatsApp.
+</Card>
+
+<Card
+  title="Telegram"
+  icon="send"
+  href="/wallet/telegram"
+>
+  Utilisation de Tara sur Telegram.
+</Card>

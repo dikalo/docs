@@ -1,0 +1,50 @@
+---
+title: "API Payout"
+description: "Envoie de l'argent vers un compte Mobile Money via l'API."
+---
+
+L'endpoint Payout permet d'envoyer de l'argent depuis ton compte Tara vers un numéro Mobile Money.
+
+## Endpoint
+
+```
+POST https://www.dklo.co/api/tara/payout
+```
+
+## Corps de la requête
+
+| Paramètre | Type | Obligatoire | Description |
+|-----------|------|-------------|-------------|
+| `apiKey` | string | Oui | Ta clé publique |
+| `businessId` | string | Oui | Ton identifiant business |
+| `phoneNumber` | string | Oui | Numéro du bénéficiaire |
+| `amount` | number | Oui | Montant en FCFA |
+| `network` | string | Oui | Réseau (`ORANGE_CAMEROON` ou `MTN_CAMEROON`) |
+| `description` | string | Non | Motif du payout |
+
+## Exemple
+
+```bash
+curl -X POST https://www.dklo.co/api/tara/payout \
+  -H "Authorization: Bearer ta_clé_privée" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "apiKey": "ta_clé_publique",
+    "businessId": "ton_business_id",
+    "phoneNumber": "2376xxxxxxxx",
+    "amount": 50000,
+    "network": "ORANGE_CAMEROON",
+    "description": "Paiement fournisseur"
+  }'
+```
+
+## Réponse
+
+```json
+{
+  "status": "SUCCESS",
+  "reference": "payout_abc123",
+  "amount": 50000,
+  "phoneNumber": "2376xxxxxxxx"
+}
+```

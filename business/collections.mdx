@@ -1,0 +1,76 @@
+---
+title: "Collections"
+description: "Crée des liens de paiement partageables en quelques secondes. Une collecte = un lien. Simple."
+---
+
+Une collecte est un lien de paiement que tu peux partager sur WhatsApp, Telegram, Facebook, ou par email. Chaque personne qui clique peut payer en Mobile Money ou par carte.
+
+<Tip>
+  Une collecte peut être à montant fixe (ex: 5000 FCFA) ou à montant libre. Tu choisis.
+</Tip>
+
+## Créer une collecte
+
+<Steps>
+  <Step title="Nouvelle collecte">
+    Dans le dashboard, va dans **Collectes → Nouvelle collecte**.
+  </Step>
+  <Step title="Configure">
+    Remplis les informations :
+
+    - **Nom** : donne un nom clair (ex: "Collecte scolaire 2026")
+    - **Description** : explique à quoi sert la collecte
+    - **Montant** : fixe ou laisse ouvert
+    - **Devise** : FCFA par défaut
+    - **Date de fin** : optionnelle
+  </Step>
+  <Step title="Personnalise">
+    Ajoute des options :
+
+    - **Cadeaux** : les participants peuvent offrir des cadeaux (ex: Maïs Braisé ×2)
+    - **Votes** : transforme ta collecte en vote (ex: élection Miss Université)
+    - **QR Code** : génère un QR code pour les paiements en personne
+  </Step>
+  <Step title="Partage">
+    Copie le lien et partage-le. Tu peux aussi :
+
+    - Générer un **QR code** imprimable
+    - Ajouter un **listener** pour exécuter du code à chaque paiement
+    - Configurer un **webhook** pour notifier ton backend
+  </Step>
+</Steps>
+
+## Types de collectes
+
+| Type | Description | Cas d'usage |
+|------|-------------|------------|
+| Simple | Montant fixe, un seul produit | Frais de scolarité, cotisation |
+| Montant libre | Le payeur choisit le montant | Dons, cagnottes, églises |
+| Avec cadeaux | Cadeaux prédéfinis à offrir | Anniversaires, mariages |
+| Vote | Les paiements sont des votes | Élections, concours |
+
+## QR Code
+
+Chaque collecte a un QR code unique. Imprime-le et affiche-le dans ta boutique. Les clients scannent et paient en 10 secondes.
+
+Pour plus de détails, voir [QR Codes](/sdk/qr-codes).
+
+## Listeners
+
+Un listener est un bout de code qui s'exécute à chaque paiement reçu sur ta collecte. Utile pour :
+
+- Envoyer un email de remerciement automatique
+- Mettre à jour une base de données externe
+- Déclencher un SMS de confirmation
+
+## Webhooks
+
+Configure un webhook pour que Tara notifie ton serveur à chaque événement. Voir [Webhooks](/api/webhooks).
+
+<Card
+  title="API Collections"
+  icon="file-braces"
+  href="/api/payments"
+>
+  Crée et gère tes collectes via l'API REST.
+</Card>

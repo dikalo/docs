@@ -1,0 +1,83 @@
+---
+title: "Clients"
+description: "Gère ta base clients. Crée, importe, et suis l'historique de chaque client."
+---
+
+La section **Clients** te permet de gérer ta base de données clients, d'importer des listes existantes, et de suivre l'historique de paiement de chaque personne.
+
+<Tip>
+  Importe ta liste de clients existante depuis Excel ou CSV en quelques clics.
+</Tip>
+
+## Liste des clients
+
+Le tableau des clients affiche :
+
+| Colonne | Description |
+|---------|-------------|
+| Nom | Nom complet du client |
+| Téléphone | Numéro Mobile Money |
+| Email | Adresse email (optionnel) |
+| Total payé | Somme des paiements effectués |
+| Dernier paiement | Date du dernier paiement |
+| Collectes | Nombre de collectes auxquelles il a participé |
+
+## Ajouter un client
+
+<Steps>
+  <Step title="Nouveau client">
+    Dans **Clients → Nouveau client**.
+  </Step>
+  <Step title="Remplis les infos">
+    - Nom et prénom
+    - Numéro de téléphone (obligatoire)
+    - Email (optionnel)
+    - Notes internes (optionnel)
+  </Step>
+  <Step title="Associe à une collecte">
+    Tu peux directement associer ce client à une collecte existante.
+  </Step>
+</Steps>
+
+## Import en masse
+
+Importe un fichier CSV ou Excel :
+
+```
+Nom,Téléphone,Email,Notes
+Eric M.,2376xxxxxxxx,eric@email.com,Client VIP
+Carine D.,2376xxxxxxxx,carine@email.com,Comptable
+```
+
+<Steps>
+  <Step title="Prépare ton fichier">
+    Format accepté : CSV ou Excel. Colonnes obligatoires : Nom, Téléphone.
+  </Step>
+  <Step title="Importe">
+    Dans **Clients → Importer**, glisse-dépose ton fichier.
+  </Step>
+  <Step title="Vérifie">
+    Tara vérifie les doublons et les numéros invalides avant l'import.
+  </Step>
+</Steps>
+
+## Fiche client
+
+En cliquant sur un client, tu accèdes à :
+
+- **Historique complet** des paiements
+- **Collectes** auxquelles il a participé
+- **Montant total** payé
+- **Notes internes** et tags
+
+## API
+
+Pour gérer les clients via l'API, consulte :
+
+<Card
+  title="API User Identity"
+  icon="file-braces"
+  href="/api/user-identity"
+>
+  Vérifie l'identité d'un utilisateur via l'API.
+</Card>

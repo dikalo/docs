@@ -1,0 +1,410 @@
+---
+title: "SDK React"
+description: "@taramoney/react-sdk — Intègre les paiements Mobile Money dans ton app React/Next.js en quelques lignes."
+---
+
+Le SDK React officiel de Tara fournit des composants prêts à l'emploi et un client HTTP pour intégrer les paiements Mobile Money.
+
+<Tip>
+  **npm** : `@taramoney/react-sdk` v0.1.0 — Compatible React ≥17 et Next.js (App Router). Zero dépendance externe.
+</Tip>
+
+## Installation
+
+```bash
+npm install @taramoney/react-sdk
+# ou
+yarn add @taramoney/react-sdk
+```
+
+## Configuration
+
+### Provider
+
+Enveloppe ton application avec `<TaraProvider>` :
+
+```tsx
+import { TaraProvider } from "@taramoney/react-sdk";
+
+function App() {
+  return (
+    <TaraProvider
+      config={{
+        apiKey: "ta_clé_publique",
+        businessId: "ton_business_id",
+        environment: "production",
+      }}
+    >
+      {/* Ton app */}
+    </TaraProvider>
+  );
+}
+```
+
+### TaraConfig
+
+| Paramètre | Type | Obligatoire | Description |
+|-----------|------|-------------|-------------|
+| `apiKey` | `string` | Oui | Ta clé publique Tara |
+| `businessId` | `string` | Oui | Ton identifiant business |
+| `environment` | `"sandbox" \| "production"` | Non | Environnement (défaut: `"sandbox"`) |
+| `baseUrl` | `string` | Non | URL de base de l'API (override) |
+| `useProxy` | `boolean` | Non | Utiliser le proxy `/api/tara-proxy` pour éviter les CORS |
+
+### Proxy Next.js (recommandé)
+
+Pour éviter les blocages CORS navigateur, utilise le proxy intégré :
+
+**1. Crée la route proxy :**
+
+```ts
+// app/api/tara-proxy/route.ts
+export { GET, POST, PUT, DELETE } from "@taramoney/react-sdk/server";
+```
+
+**2. Active le mode proxy :**
+
+```tsx
+<TaraProvider
+  config={{
+    apiKey: "ta_clé_publique",
+    businessId: "ton_business_id",
+    environment: "production",
+    useProxy: true,
+  }}
+>
+  <App />
+</TaraProvider>
+```
+
+### Proxy standalone (Vite / CRA / React pur)
+
+```bash
+npx @taramoney/react-sdk proxy
+# → http://localhost:3001
+
+# Puis configure :
+# baseUrl: "http://localhost:3001/api/tara"
+# useProxy: false
+```
+
+---
+
+## Composants
+
+### PayButton
+
+Bouton de paiement avec modale inline (réseau + téléphone).
+
+```tsx
+import { PayButton } from "@taramoney/react-sdk";
+
+<PayButton
+  amount={5000}
+  collectionName="collecte_scolaire"
+  variant="primary"
+  onSuccess={(tx) => console.log("✅", tx)}
+  onError={(err) => console.error("❌", err)}
+>
+  Payer 5000 FCFA
+</PayButton>
+```
+
+#### Props
+
+| Prop | Type | Obligatoire | Description |
+|------|------|-------------|-------------|
+| `amount` | `number` | **Oui** | Montant en FCFA |
+| `collectionName` | `string` | **Oui** | Nom de la collecte |
+| `productId` | `string` | Non | Identifiant unique (généré si absent) |
+| `variant` | `"primary" \| "outline"` | Non | Style du bouton (défaut: `"primary"`) |
+| `disabled` | `boolean` | Non | Désactiver le bouton |
+| `onSuccess` | `(tx: Transaction) => void` | Non | Callback après succès |
+| `onError` | `(err: Error) => void` | Non | Callback après erreur |
+| `children` | `ReactNode` | Non | Contenu du bouton |
+| `className` | `string` | Non | Classe CSS additionnelle |
+
+#### Variants
+
+```tsx
+{/* Bouton primaire (orange) */}
+<PayButton amount={100} collectionName="test" variant="primary">
+  Payer 100 FCFA
+</PayButton>
+
+{/* Bouton outline */}
+<PayButton amount={250} collectionName="test" variant="outline">
+  Payer 250 FCFA
+</PayButton>
+
+{/* Désactivé */}
+<PayButton amount={500} collectionName="test" disabled>
+  Indisponible
+</PayButton>
+```
+
+### PaymentForm
+
+Formulaire embarqué : réseau, téléphone, montant. Pas de modale — tout est inline.
+
+```tsx
+import { PaymentForm } from "@taramoney/react-sdk";
+
+// Montant fixe
+<PaymentForm
+  amount={200}
+  collectionName="test_form"
+  onSuccess={(tx) => console.log("✅", tx)}
+  onError={(err) => console.error("❌", err)}
+/>
+
+// Montant libre (l'utilisateur le saisit)
+<PaymentForm
+  collectionName="contribution_libre"
+  onSuccess={(tx) => console.log("✅", tx)}
+/>
+```
+
+#### Props
+
+| Prop | Type | Obligatoire | Description |
+|------|------|-------------|-------------|
+| `collectionName` | `string` | **Oui** | Nom de la collecte |
+| `amount` | `number` | Non | Montant fixe (libre si absent) |
+| `productId` | `string` | Non | Identifiant unique |
+| `webhookUrl` | `string` | Non | URL de webhook pour notification |
+| `onSuccess` | `(tx: Transaction) => void` | Non | Callback après succès |
+| `onError` | `(err: Error) => void` | Non | Callback après erreur |
+| `className` | `string` | Non | Classe CSS additionnelle |
+
+### QrCode
+
+QR code de paiement scannable via WhatsApp/Telegram.
+
+```tsx
+import { QrCode } from "@taramoney/react-sdk";
+
+// Avec montant fixe
+<QrCode amount={500} collectionName="collecte_scolaire" size={200} />
+
+// Sans montant (libre)
+<QrCode collectionName="dons_libres" size={200} />
+
+// Format portrait (stories mobile)
+<QrCode amount={1000} collectionName="test" format="portrait" size={256} />
+```
+
+#### Props
+
+| Prop | Type | Obligatoire | Description |
+|------|------|-------------|-------------|
+| `collectionName` | `string` | **Oui** | Nom de la collecte |
+| `amount` | `number` | Non | Montant fixe (libre si absent) |
+| `size` | `number` | Non | Taille en pixels (défaut: `256`) |
+| `format` | `QrCodeFormat` | Non | `"png"` \| `"svg"` \| `"portrait"` \| `"paysage"` \| `"square"` |
+| `className` | `string` | Non | Classe CSS additionnelle |
+
+### TransactionStatus
+
+Affiche le statut d'une transaction avec polling automatique.
+
+```tsx
+import { TransactionStatus } from "@taramoney/react-sdk";
+
+<TransactionStatus
+  reference="txn_abc123"
+  pollInterval={5000}
+  onStatusChange={(status) => {
+    console.log("Nouveau statut:", status)
+  }}
+/>
+```
+
+#### Props
+
+| Prop | Type | Obligatoire | Description |
+|------|------|-------------|-------------|
+| `reference` | `string` | **Oui** | Référence de la transaction |
+| `pollInterval` | `number` | Non | Intervalle de polling en ms (défaut: `5000`) |
+| `onStatusChange` | `(status: TransactionStatus) => void` | Non | Callback au changement de statut |
+| `className` | `string` | Non | Classe CSS additionnelle |
+
+---
+
+## Hook `useTara()`
+
+Accède au contexte Tara depuis n'importe quel composant enfant de `<TaraProvider>`.
+
+```tsx
+import { useTara } from "@taramoney/react-sdk";
+
+function MesPaiements() {
+  const { config, client, isReady } = useTara();
+
+  const loadPayments = async () => {
+    const result = await client.getPayments({
+      businessId: config.businessId,
+      limit: 5,
+    });
+    console.log(result);
+    // { total: 150, limit: 5, offset: 0, payments: [...] }
+  };
+
+  return <button onClick={loadPayments}>Charger</button>;
+}
+```
+
+### Retour du hook
+
+| Champ | Type | Description |
+|-------|------|-------------|
+| `config` | `TaraConfig` | Configuration active |
+| `client` | `TaraMoneyClient` | Instance du client HTTP |
+| `isReady` | `boolean` | Provider monté et prêt |
+
+---
+
+## Client API (`TaraMoneyClient`)
+
+Le client expose toutes les méthodes pour interagir avec l'API Tara.
+
+### `client.mobilePay(params)`
+
+Déclenche un paiement Mobile Money.
+
+```tsx
+const response = await client.mobilePay({
+  apiKey: config.apiKey,
+  businessId: config.businessId,
+  productId: "prod_001",
+  productName: "Collecte scolaire",
+  network: "ORANGE_CAMEROON",
+  productPrice: 100,
+  phoneNumber: "2376xxxxxxxx",
+  webHookUrl: "https://tonsite.com/webhook",
+});
+// { message: "API_ORDER_SUCESSFULL", status: "SUCCESS", vendor: "ORANGE_CAMEROON" }
+```
+
+### `client.getPayments(params)`
+
+Récupère la liste des paiements.
+
+```tsx
+const result = await client.getPayments({
+  businessId: config.businessId,
+  status: "SUCCESS",
+  limit: 20,
+  offset: 0,
+});
+// { total: 150, limit: 20, offset: 0, payments: Transaction[] }
+```
+
+| Paramètre | Type | Obligatoire | Description |
+|-----------|------|-------------|-------------|
+| `businessId` | `string` | **Oui** | Ton identifiant business |
+| `status` | `TransactionStatus` | Non | Filtrer par statut |
+| `startDate` | `string` | Non | Date début (ISO) |
+| `endDate` | `string` | Non | Date fin (ISO) |
+| `collectionId` | `string` | Non | Filtrer par collecte |
+| `limit` | `number` | Non | Résultats par page (défaut: 50) |
+| `offset` | `number` | Non | Pagination |
+
+### `client.getTransactionStatus(reference)`
+
+Vérifie le statut d'une transaction.
+
+```tsx
+const tx = await client.getTransactionStatus("txn_abc123");
+// { reference: "txn_abc123", amount: 5000, status: "SUCCESS", ... }
+```
+
+### `client.createPaymentLink(params)`
+
+Crée un lien de paiement.
+
+```tsx
+const link = await client.createPaymentLink({
+  apiKey: config.apiKey,
+  businessId: config.businessId,
+  amount: 5000,
+  description: "Frais de dossier",
+  reference: "DOSSIER-001",
+  redirectUrl: "https://tonsite.com/confirmation",
+});
+// { status: "SUCCESS", paymentLink: "https://pay.taramoney.com/link/abc123", reference: "DOSSIER-001" }
+```
+
+### `client.getQrCodeUrl(collectionName, amount?, format?, size?)`
+
+Génère l'URL d'un QR code.
+
+```tsx
+const url = client.getQrCodeUrl("collecte_scolaire", 5000, "png", 256);
+// https://www.dklo.co/api/tara/qrcode?collectionName=collecte_scolaire&amount=5000&format=png&size=256
+```
+
+---
+
+## Types TypeScript
+
+### Transaction
+
+```ts
+interface Transaction {
+  reference: string;          // Référence unique
+  amount: number;             // Montant en FCFA
+  status: "SUCCESS" | "PENDING" | "FAILED";
+  phoneNumber: string;        // Format 2376xxxxxxxx
+  productId?: string;         // Identifiant du produit
+  createdAt: string;          // Date ISO
+}
+```
+
+### MobileNetwork
+
+```ts
+type MobileNetwork = "ORANGE_CAMEROON" | "MTN_CAMEROON";
+```
+
+### Réseaux disponibles
+
+```ts
+import { MOBILE_NETWORKS } from "@taramoney/react-sdk";
+// [
+//   { code: "ORANGE_CAMEROON", label: "Orange Cameroun" },
+//   { code: "MTN_CAMEROON", label: "MTN Cameroun" },
+// ]
+```
+
+---
+
+## Structure du package
+
+```
+@taramoney/react-sdk
+├── PayButton          — Bouton avec modale inline
+├── PaymentForm        — Formulaire embarqué
+├── QrCode             — QR code de paiement
+├── TransactionStatus  — Statut avec polling
+├── TaraProvider       — Contexte React
+├── useTara()          — Hook d'accès
+├── TaraMoneyClient    — Client HTTP
+└── /server            — Route handlers proxy Next.js
+```
+
+<Card
+  title="API Mobile Pay"
+  icon="file-braces"
+  href="/api/mobile-pay"
+>
+  Référence de l'API REST sous-jacente.
+</Card>
+
+<Card
+  title="QR Codes"
+  icon="qr-code"
+  href="/sdk/qr-codes"
+>
+  Formats disponibles, personnalisation, deep links.
+</Card>

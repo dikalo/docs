@@ -1,0 +1,65 @@
+---
+title: "Paiements WhatsApp"
+description: "Reçois et envoie de l'argent directement depuis WhatsApp, sans télécharger d'application."
+---
+
+Tara Wallet sur WhatsApp te permet de payer, d'envoyer de l'argent, et de participer à des collectes — tout cela sans quitter ta messagerie préférée.
+
+<Tip>
+  Pas de téléchargement. Pas d'application. Juste WhatsApp, que tu utilises déjà tous les jours.
+</Tip>
+
+## Comment ça marche ?
+
+### Ajouter Tara à tes contacts
+
+Ajoute le numéro Tara à tes contacts WhatsApp. Tu peux aussi scanner le QR code sur [taramoney.com](https://www.taramoney.com).
+
+### Payer une collecte
+
+Envoie un message à Tara au format suivant :
+
+```
+Bonjour Tara ! Je souhaite payer 5000 FCFA pour @collecte_scolaire. Réf: abcdef123456
+```
+
+Tara confirme les détails et te demande de valider. Une fois confirmé, le paiement est initié via Mobile Money.
+
+### Offrir un cadeau
+
+Si la collecte propose des cadeaux :
+
+```
+Bonjour Tara ! Je souhaite offrir Maïs Braisé ×2 (200 FCFA) pour @collecte_scolaire | index:87 | anonyme:false | ref:abc123
+```
+
+### Créer un Tara ID
+
+Envoie un message à Tara pour créer ton identifiant. Ton Tara ID te permet de suivre ton historique et de participer aux tontines.
+
+## Deep link WhatsApp
+
+Le lien de paiement s'ouvre automatiquement dans WhatsApp :
+
+```
+{whatsappLink}@{amount}@{userId}@{sourceId}
+```
+
+| Paramètre | Description |
+|-----------|-------------|
+| `whatsappLink` | Lien WhatsApp du bot Tara |
+| `amount` | Montant du paiement en FCFA |
+| `userId` | Identifiant utilisateur (optionnel) |
+| `sourceId` | UUID sans tirets pour la traçabilité |
+
+## Format des messages
+
+Pour la spécification complète du format des messages, consulte le [Guide format des messages](/guides/message-format).
+
+<Card
+  title="Guide Telegram"
+  icon="send"
+  href="/wallet/telegram"
+>
+  Même fonctionnement, sur Telegram.
+</Card>
