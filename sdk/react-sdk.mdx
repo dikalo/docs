@@ -49,6 +49,7 @@ function App() {
 | `businessId` | `string` | Oui | Ton identifiant business |
 | `environment` | `"sandbox" \| "production"` | Non | Environnement (défaut: `"sandbox"`) |
 | `baseUrl` | `string` | Non | URL de base de l'API (override) |
+| `qrBaseUrl` | `string` | Non | URL de base pour les QR (défaut: `https://taramoney.com/pay/`) |
 | `useProxy` | `boolean` | Non | Utiliser le proxy `/api/tara-proxy` pour éviter les CORS |
 
 ### Proxy Next.js (recommandé)
@@ -92,131 +93,58 @@ npx @taramoney/react-sdk proxy
 
 ## Composants
 
-### PayButton
-
-Bouton de paiement avec modale inline (réseau + téléphone).
-
-```tsx
-import { PayButton } from "@taramoney/react-sdk";
-
-<PayButton
-  amount={5000}
-  collectionName="collecte_scolaire"
-  variant="primary"
-  onSuccess={(tx) => console.log("✅", tx)}
-  onError={(err) => console.error("❌", err)}
->
-  Payer 5000 FCFA
-</PayButton>
-```
-
-#### Props
-
-| Prop | Type | Obligatoire | Description |
-|------|------|-------------|-------------|
-| `amount` | `number` | **Oui** | Montant en FCFA |
-| `collectionName` | `string` | **Oui** | Nom de la collecte |
-| `productId` | `string` | Non | Identifiant unique (généré si absent) |
-| `variant` | `"primary" \| "outline"` | Non | Style du bouton (défaut: `"primary"`) |
-| `disabled` | `boolean` | Non | Désactiver le bouton |
-| `onSuccess` | `(tx: Transaction) => void` | Non | Callback après succès |
-| `onError` | `(err: Error) => void` | Non | Callback après erreur |
-| `children` | `ReactNode` | Non | Contenu du bouton |
-| `className` | `string` | Non | Classe CSS additionnelle |
-
-#### Variants
-
-```tsx
-{/* Bouton primaire (orange) */}
-<PayButton amount={100} collectionName="test" variant="primary">
-  Payer 100 FCFA
-</PayButton>
-
-{/* Bouton outline */}
-<PayButton amount={250} collectionName="test" variant="outline">
-  Payer 250 FCFA
-</PayButton>
-
-{/* Désactivé */}
-<PayButton amount={500} collectionName="test" disabled>
-  Indisponible
-</PayButton>
-```
-
-### PaymentForm
-
-Formulaire embarqué : réseau, téléphone, montant. Pas de modale — tout est inline.
-
-```tsx
-import { PaymentForm } from "@taramoney/react-sdk";
-
-// Montant fixe
-<PaymentForm
-  amount={200}
-  collectionName="test_form"
-  onSuccess={(tx) => console.log("✅", tx)}
-  onError={(err) => console.error("❌", err)}
-/>
-
-// Montant libre (l'utilisateur le saisit)
-<PaymentForm
-  collectionName="contribution_libre"
-  onSuccess={(tx) => console.log("✅", tx)}
-/>
-```
-
-#### Props
-
-| Prop | Type | Obligatoire | Description |
-|------|------|-------------|-------------|
-| `collectionName` | `string` | **Oui** | Nom de la collecte |
-| `amount` | `number` | Non | Montant fixe (libre si absent) |
-| `productId` | `string` | Non | Identifiant unique |
-| `webhookUrl` | `string` | Non | URL de webhook pour notification |
-| `onSuccess` | `(tx: Transaction) => void` | Non | Callback après succès |
-| `onError` | `(err: Error) => void` | Non | Callback après erreur |
-| `className` | `string` | Non | Classe CSS additionnelle |
-
 ### QrCode
 
-QR code de paiement scannable via WhatsApp/Telegram.
+QR code de paiement scannable. Encode un lien `https://taramoney.com/pay/{collectionId}?p={amount}`.
 
 ```tsx
 import { QrCode } from "@taramoney/react-sdk";
 
 // Avec montant fixe
-<QrCode amount={500} collectionName="collecte_scolaire" size={200} />
+<QrCode collectionId="06706" amount={4000} size={256} />
 
 // Sans montant (libre)
-<QrCode collectionName="dons_libres" size={200} />
-
-// Format portrait (stories mobile)
-<QrCode amount={1000} collectionName="test" format="portrait" size={256} />
+<QrCode collectionId="06706" size={200} />
 ```
 
 #### Props
 
 | Prop | Type | Obligatoire | Description |
 |------|------|-------------|-------------|
-| `collectionName` | `string` | **Oui** | Nom de la collecte |
-| `amount` | `number` | Non | Montant fixe (libre si absent) |
+| `collectionId` | `string` | **Oui** | Identifiant de la collecte |
+| `amount` | `number` | Non | Montant en FCFA (libre si absent) |
 | `size` | `number` | Non | Taille en pixels (défaut: `256`) |
-| `format` | `QrCodeFormat` | Non | `"png"` \| `"svg"` \| `"portrait"` \| `"paysage"` \| `"square"` |
+| `qrBaseUrl` | `string` | Non | URL de base du lien (défaut: `https://taramoney.com/pay/`) |
+| `instructionText` | `string` | Non | Texte sous le QR (défaut: `"Scannez ce code pour effectuer le paiement."`) |
 | `className` | `string` | Non | Classe CSS additionnelle |
 
-### TransactionStatus
+### EmbedPay
 
-Affiche le statut d'une transaction avec polling automatique.
+Intègre la page de paiement complète en iframe. **Pas besoin de `TaraProvider`** — le composant est autonome.
 
 ```tsx
-import { TransactionStatus } from "@taramoney/react-sdk";
+import { EmbedPay } from "@taramoney/react-sdk";
 
-<TransactionStatus
-  reference="txn_abc123"
-  pollInterval={5000}
-  onStatusChange={(status) => {
-    console.log("Nouveau statut:", status)
-  }}
+// Thème Tara par défaut
+<EmbedPay
+  collectionId="06706"
+  amount={4000}
+  accentColor="ff4400"
+  backgroundColor="faf9f7"
+  textColor="1a1a1a"
+  height={600}
+  onSuccess={(data) => console.log("✅ Payé !", data)}
+  onError={(err) => console.error("❌", err)}
+/>
+
+// Thème sombre personnalisé
+<EmbedPay
+  collectionId="06706"
+  amount={4000}
+  accentColor="00ff88"
+  backgroundColor="1a1a1a"
+  textColor="ffffff"
+  height={600}
 />
 ```
 
@@ -224,10 +152,22 @@ import { TransactionStatus } from "@taramoney/react-sdk";
 
 | Prop | Type | Obligatoire | Description |
 |------|------|-------------|-------------|
-| `reference` | `string` | **Oui** | Référence de la transaction |
-| `pollInterval` | `number` | Non | Intervalle de polling en ms (défaut: `5000`) |
-| `onStatusChange` | `(status: TransactionStatus) => void` | Non | Callback au changement de statut |
+| `collectionId` | `string` | **Oui** | Identifiant de la collecte |
+| `amount` | `number` | Non | Montant en FCFA |
+| `accentColor` | `string` | Non | Couleur d'accentuation hex sans # (défaut: `ff4400`) |
+| `backgroundColor` | `string` | Non | Couleur de fond hex sans # (défaut: `faf9f7`) |
+| `textColor` | `string` | Non | Couleur du texte hex sans # (défaut: `1a1a1a`) |
+| `payBaseUrl` | `string` | Non | URL base page de paiement (défaut: `https://taramoney.com/pay/`) |
+| `height` | `number \| string` | Non | Hauteur de l'iframe (défaut: `600`) |
+| `width` | `number \| string` | Non | Largeur de l'iframe (défaut: `100%`) |
+| `onSuccess` | `(data) => void` | Non | Callback après paiement réussi (postMessage) |
+| `onError` | `(error) => void` | Non | Callback après erreur (postMessage) |
 | `className` | `string` | Non | Classe CSS additionnelle |
+
+L'URL générée par l'iframe :
+```
+https://taramoney.com/pay/06706?p=4000&accent=00ff88&bg=1a1a1a&text=ffffff&isFrame=true
+```
 
 ---
 
@@ -242,7 +182,7 @@ function MesPaiements() {
   const { config, client, isReady } = useTara();
 
   const loadPayments = async () => {
-    const result = await client.getPayments({
+    const result = await client.fetchPayments({
       businessId: config.businessId,
       limit: 5,
     });
@@ -278,20 +218,34 @@ const response = await client.mobilePay({
   businessId: config.businessId,
   productId: "prod_001",
   productName: "Collecte scolaire",
-  network: "ORANGE_CAMEROON",
   productPrice: 100,
   phoneNumber: "2376xxxxxxxx",
+  // network — optionnel, laisser vide pour auto-détection
+  // "wave" pour Wave (Sénégal, CIV, Burkina)
+  network: "",
   webHookUrl: "https://tonsite.com/webhook",
 });
 // { message: "API_ORDER_SUCESSFULL", status: "SUCCESS", vendor: "ORANGE_CAMEROON" }
+// Wave : { ..., authUrl: "https://..." } — redirige l'utilisateur vers cette URL
 ```
 
-### `client.getPayments(params)`
+| Paramètre | Type | Obligatoire | Description |
+|-----------|------|-------------|-------------|
+| `apiKey` | `string` | **Oui** | Ta clé publique |
+| `businessId` | `string` | **Oui** | Ton identifiant business |
+| `productId` | `string` | **Oui** | Identifiant du produit/collecte |
+| `productName` | `string` | **Oui** | Nom du produit/collecte |
+| `productPrice` | `number` | **Oui** | Montant en devise locale |
+| `phoneNumber` | `string` | **Oui** | Numéro du payeur (format `2376xxxxxxxx`) |
+| `network` | `string` | Non | Code réseau. Vide = auto-détection, `"wave"` pour Wave |
+| `webHookUrl` | `string` | Non | URL appelée par le webhook après confirmation |
+
+### `client.fetchPayments(params)`
 
 Récupère la liste des paiements.
 
 ```tsx
-const result = await client.getPayments({
+const result = await client.fetchPayments({
   businessId: config.businessId,
   status: "SUCCESS",
   limit: 20,
@@ -307,7 +261,7 @@ const result = await client.getPayments({
 | `startDate` | `string` | Non | Date début (ISO) |
 | `endDate` | `string` | Non | Date fin (ISO) |
 | `collectionId` | `string` | Non | Filtrer par collecte |
-| `limit` | `number` | Non | Résultats par page (défaut: 50) |
+| `limit` | `number` | Non | Résultats par page |
 | `offset` | `number` | Non | Pagination |
 
 ### `client.getTransactionStatus(reference)`
@@ -335,13 +289,13 @@ const link = await client.createPaymentLink({
 // { status: "SUCCESS", paymentLink: "https://pay.taramoney.com/link/abc123", reference: "DOSSIER-001" }
 ```
 
-### `client.getQrCodeUrl(collectionName, amount?, format?, size?)`
+### `client.getQrCodeUrl(collectionId, amount?, qrBaseUrl?)`
 
-Génère l'URL d'un QR code.
+Génère l'URL du lien de paiement pour QR code (local, pas d'appel API).
 
 ```tsx
-const url = client.getQrCodeUrl("collecte_scolaire", 5000, "png", 256);
-// https://www.dklo.co/api/tara/qrcode?collectionName=collecte_scolaire&amount=5000&format=png&size=256
+const url = client.getQrCodeUrl("06706", 4000);
+// https://taramoney.com/pay/06706?p=4000
 ```
 
 ---
@@ -364,17 +318,32 @@ interface Transaction {
 ### MobileNetwork
 
 ```ts
-type MobileNetwork = "ORANGE_CAMEROON" | "MTN_CAMEROON";
+// Le type network accepte n'importe quel code réseau (string).
+// Laisser vide pour l'auto-détection, "wave" pour Wave.
+
+type MobileNetwork = string;
 ```
 
-### Réseaux disponibles
+### Réseaux courants
 
 ```ts
 import { MOBILE_NETWORKS } from "@taramoney/react-sdk";
-// [
-//   { code: "ORANGE_CAMEROON", label: "Orange Cameroun" },
-//   { code: "MTN_CAMEROON", label: "MTN Cameroun" },
-// ]
+// {
+//   ORANGE_CAMEROON: "ORANGE_CAMEROON",
+//   MTN_CAMEROON: "MTN_CAMEROON",
+//   WAVE: "wave",
+// }
+```
+
+### MobilePayResponse
+
+```ts
+interface MobilePayResponse {
+  message: string;
+  status: TransactionStatus;
+  vendor: string;
+  authUrl?: string;  // Présent uniquement pour les paiements Wave
+}
 ```
 
 ---
@@ -383,13 +352,11 @@ import { MOBILE_NETWORKS } from "@taramoney/react-sdk";
 
 ```
 @taramoney/react-sdk
-├── PayButton          — Bouton avec modale inline
-├── PaymentForm        — Formulaire embarqué
 ├── QrCode             — QR code de paiement
-├── TransactionStatus  — Statut avec polling
+├── EmbedPay           — Page de paiement embarquée en iframe
 ├── TaraProvider       — Contexte React
-├── useTara()          — Hook d'accès
-├── TaraMoneyClient    — Client HTTP
+├── useTara()          — Hook d'accès au contexte
+├── TaraMoneyClient    — Client HTTP (mobilePay, fetchPayments, etc.)
 └── /server            — Route handlers proxy Next.js
 ```
 
